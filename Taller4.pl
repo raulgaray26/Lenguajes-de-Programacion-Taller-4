@@ -37,3 +37,17 @@ xp_acumulada(N,Total):-
 tiene_requerido(Personaje,Objeto):-
     inventario(Personaje,Lista),
     member(Objeto,Lista).
+
+% --- REGLAS DE UNIFICACION Y COMPARACION ---
+% 1. Detectar personajes del mismo nivel exacto (vs unificación)
+mismo_nivel(P1,P2):-
+    personaje(P1,N,_),
+    personaje(P2,N,_),
+    P1 \== P2.
+
+% 2. Validar balance aritmético estricto
+es_balanceado(Personaje):-
+    personaje(Personaje,_,Vida),
+    Vida =:=100.
+
+% 3. Ejemplo controlado de error
