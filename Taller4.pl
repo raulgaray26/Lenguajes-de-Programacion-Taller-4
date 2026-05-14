@@ -69,6 +69,7 @@ ser(pasado, tercera, singular, "fue").
 ser(futuro, tercera, singular, "será").
 ser(presente, primera, singular, "soy").
 ser(presente, primera, plural, "somos").
+ser(presente, tercera, plural, "son").
 
 % 3. Regla de inferencia con estructura condicional (2.3)
 conjugar_accion(Verbo, Tiempo, Persona, Numero, Conjugacion) :-
@@ -78,9 +79,24 @@ conjugar_accion(Verbo, Tiempo, Persona, Numero, Conjugacion) :-
        Conjugacion = R
     ;  Conjugacion = Verbo ). % Si no es "ser", devuelve el infinitivo
 
+todos_pueden_aceptar([], _).
+todos_pueden_aceptar([P|Resto], MisionID) :-
+    puede_aceptar(P, MisionID),
+    todos_pueden_aceptar(Resto, MisionID).
+
 % 4. Generación de reporte narrativo
-generar_reporte(Personaje, MisionID, Mensaje) :-
+% Caso solitario
+generar_reporte([Personaje], MisionID, Mensaje) :-
     puede_aceptar(Personaje, MisionID),
     mision(MisionID, Nombre, _, XP),
     conjugar_accion("ser", presente, tercera, singular, FormaVerbal),
     atomic_list_concat([Personaje, FormaVerbal, "capaz de completar", Nombre, "por", XP, "XP"], ' ', Mensaje).
+
+% Caso en grupo
+generar_reporte([P1, P2 | Resto], MisionID, Mensaje) :-
+    Personajes = [P1, P2 | Resto],
+    todos_pueden_aceptar(Personajes, MisionID),
+    mision(MisionID, Nombre, _, XP),
+    conjugar_accion("ser", presente, tercera, plural, FormaVerbal),
+    atomic_list_concat(Personajes, ', ', NombresConjuntos),
+    atomic_list_concat([NombresConjuntos, FormaVerbal, "asignados como escuadrón a la misión", Nombre, "para dividir", XP, "XP"], ' ', Mensaje).
